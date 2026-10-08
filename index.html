@@ -1,0 +1,353 @@
+<title>إرسال واتساب للعميل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: header byline → animated mock (GIF-style, auto-plays) beside a clickable step list → rules → signature */
+:root{
+  --bg:#F5F9F9; --surface:#FFFFFF; --ink:#132226; --muted:#5B6E72; --line:#DBE7E7;
+  --accent:#007B7D; --accent-ink:#FFFFFF; --soft:#E1F5F5; --warn:#8F590B; --warn-soft:#FBF0DD; --purple:#653165; --purple-soft:#F0E6F0;
+  --f-display:"Cairo","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --f-ui:"DM Sans","IBM Plex Sans Arabic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1517; --surface:#141F21; --ink:#EAF3F3; --muted:#9BB0B3; --line:#25373A;
+  --accent:#2FC7C7; --accent-ink:#0A2526; --soft:rgba(47,199,199,.13); --warn:#F0BE71; --warn-soft:rgba(227,166,75,.14); --purple:#C48FC4; --purple-soft:rgba(196,143,196,.14); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1517; --surface:#141F21; --ink:#EAF3F3; --muted:#9BB0B3; --line:#25373A;
+  --accent:#2FC7C7; --accent-ink:#0A2526; --soft:rgba(47,199,199,.13); --warn:#F0BE71; --warn-soft:rgba(227,166,75,.14); --purple:#C48FC4; --purple-soft:rgba(196,143,196,.14); color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 40px;display:grid;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3.4vw,2.2rem);margin:0;line-height:1.3;text-wrap:balance}
+.sub{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.by{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px}
+.by .av{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 13px var(--f-ui)}
+.by b{display:block;font-family:var(--f-ui);font-size:14px;line-height:1.2}
+.by small{color:var(--muted);font-size:12px}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.player{min-width:0;display:grid;gap:10px}
+.stage-wrap{position:relative;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 18px 40px -22px rgba(10,40,30,.45)}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctrls button{font:500 13px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+.ctrls button:hover{border-color:var(--accent)}
+.ctrls button:focus-visible,.steps li:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ctrls #play{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);min-width:92px}
+.segs{flex:1;display:flex;gap:4px;min-width:140px}
+.segs i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.segs i.done{background:var(--accent);opacity:.45}
+.segs i.on{background:var(--accent)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:6px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--f-ui);background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.steps li:hover{background:var(--surface)}
+.steps li.on{background:var(--surface);border-color:var(--accent)}
+.steps li.on::before{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.steps b{font-family:var(--f-display);font-weight:500;font-size:15px;display:block;line-height:1.5}
+.steps p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.6}
+.tag{display:inline-block;margin-top:5px;font-size:12px;padding:1px 9px;border-radius:999px;background:var(--soft);color:var(--accent)}
+.tag.w{background:var(--warn-soft);color:var(--warn)}
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.rules h2{font-family:var(--f-display);font-size:1.15rem;margin:0 0 10px}
+.rules ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.rules li{padding-inline-start:14px;border-inline-start:3px solid var(--accent);font-size:14px}
+.rules li.w{border-color:var(--warn)}
+.rules li b{display:block;font-family:var(--f-display);font-weight:500}
+footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+footer b{color:var(--ink);font-family:var(--f-ui)}
+
+/* ---------- mock platform (fixed light look, like a screen recording) ---------- */
+.stage{position:absolute;top:0;left:0;width:800px;height:480px;transform-origin:0 0;background:#eef0f3;font-family:var(--f-ui);font-size:11px;color:#1d2330;overflow:hidden}
+.chrome{height:30px;background:#dfe3e8;display:flex;align-items:center;gap:8px;padding:0 10px}
+.dots{display:flex;gap:5px}.dots i{width:9px;height:9px;border-radius:50%;background:#c3c9d1}
+.url{flex:1;background:#fff;border-radius:6px;height:19px;display:flex;align-items:center;padding:0 10px;color:#5b6475;font-size:10.5px}
+.me{display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:2px 9px 2px 3px;font-weight:700;font-size:10.5px}
+.av{width:17px;height:17px;border-radius:50%;background:#00A4A6;color:#fff;display:inline-grid;place-items:center;font-size:8px;font-weight:700;flex:none}
+.app{display:flex;height:450px}
+.rail{width:42px;background:#fff;border-right:1px solid #e3e6ea;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0}
+.rail i{width:18px;height:18px;border-radius:5px;background:#e7eaee}.rail i:first-child{background:#1d2330}
+.rail .av{margin-top:auto;width:22px;height:22px;font-size:9px}
+.list{width:236px;background:#f7f8fa;border-right:1px solid #e3e6ea;padding:8px;display:flex;flex-direction:column;gap:6px}
+.list-h{display:flex;align-items:center;gap:8px;padding:2px 2px 4px}
+.list-h b{font-size:12px;flex:1}
+.cnt{background:#fff;border:1px solid #e3e6ea;border-radius:5px;padding:0 6px}
+.plus{width:24px;height:24px;border-radius:7px;border:1px solid #d4d9df;background:#fff;font-size:16px;line-height:1;cursor:default;color:#1d2330}
+.item{background:#fff;border:1px solid #e8ebef;border-radius:9px;padding:7px 9px;display:grid;gap:2px}
+.item .id{color:#8a93a3;font-size:9.5px;display:flex;justify-content:space-between}
+.item b{font-size:11px}
+.item .pv{color:#6b7385;font-size:10px;direction:rtl;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--f-body)}
+.chips{display:flex;gap:4px}.chips span{font-size:8.5px;background:#eef1f5;border-radius:4px;padding:0 5px;color:#566}
+.chips .wa{background:#E1F5F5;color:#00A4A6;font-weight:700}
+.item.new{border-color:#00A4A6;box-shadow:0 0 0 2px #CDEFEF}
+.conv{flex:1;display:flex;flex-direction:column;background:#fbfbfc}
+.conv-h{height:40px;border-bottom:1px solid #e8ebef;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:700}
+.conv-h .chips{margin-left:auto}
+.conv-body{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;justify-content:flex-end}
+.ghost{height:30px;border-radius:10px;background:#eef0f3}
+.ghost.r{align-self:flex-end;width:55%;background:#e3f0ff}.ghost.l{width:40%}
+.bubble{align-self:flex-end;width:290px;background:#dff0ff;border-radius:12px 12px 2px 12px;padding:9px 11px;direction:rtl;text-align:right;font-family:var(--f-body);font-size:11px;line-height:1.7;animation:pop .45s ease}
+.bubble .h{direction:ltr;text-align:left;font-family:var(--f-ui);font-size:9.5px;color:#55607a;margin-bottom:3px}
+.bubble .btn{margin-top:6px;border-top:1px solid #c5ddf3;padding-top:5px;text-align:center;color:#2a6fb5}
+.bubble .t{direction:ltr;text-align:right;font-family:var(--f-ui);font-size:9px;color:#6b7385}
+@keyframes pop{from{transform:translateY(10px) scale(.97);opacity:.2}to{transform:none;opacity:1}}
+.composer{margin:0 14px 12px;border:1px solid #e3e6ea;background:#fff;border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;color:#a0a7b4}
+.composer span:last-child{background:#1d2330;color:#fff;border-radius:7px;padding:3px 12px}
+.overlay{position:absolute;inset:30px 0 0 0;background:rgba(25,30,40,.38);display:grid;place-items:center;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.modal{width:440px;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:grid;gap:7px}
+.modal{max-height:432px;overflow-y:auto;scrollbar-width:none;padding-bottom:0}
+.modal::-webkit-scrollbar{display:none}
+.modal .foot{position:sticky;bottom:0;background:#fff;padding:8px 0 12px}
+.warnbox{background:#fdf3c8;border:1px solid #ecd47a;border-radius:9px;padding:6px 10px;color:#5d4a0c;display:grid;gap:1px;font-size:10px}
+.warnbox b{font-size:10.5px}
+.prevcard{background:#f6f7f9;border:1px solid #e8ebef;border-radius:9px;padding:8px 10px;direction:rtl;text-align:right;font-family:var(--f-body);font-size:10.5px;line-height:1.7}
+.prevcard .pb,.bubble .btn+.btn{text-align:center;color:#2a6fb5;border-top:1px solid #e1e5ea;margin-top:5px;padding-top:4px}
+.modal h3{margin:0;font-size:14px}
+.modal .p{margin:-4px 0 0;color:#6b7385;font-size:10px}
+.box{border:1px solid #e8ebef;border-radius:10px;padding:8px 10px;display:grid;gap:6px}
+.lbl{font-weight:700;font-size:10.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld{position:relative;display:grid;gap:2px}
+.fld label{font-size:9.5px;color:#6b7385}
+.sel{border:1px solid #e1e5ea;border-radius:7px;height:26px;display:flex;align-items:center;gap:6px;padding:0 8px;background:#fff;transition:box-shadow .2s,border-color .2s}
+.sel .k{color:#8a93a3}
+.sel.dis{color:#a0a7b4}
+.auto{margin-left:auto;font-style:normal;font-size:8.5px;background:#E1F5F5;color:#00A4A6;border-radius:4px;padding:0 5px;font-weight:700}
+.ph{color:#a0a7b4}.typed{color:#1d2330}
+.cchip{display:inline-flex;align-items:center;gap:5px;background:#f1f3f6;border-radius:999px;padding:1px 8px 1px 2px;direction:ltr}
+.cchip span:last-child{font-family:var(--f-body)}
+.dd{position:absolute;top:100%;left:0;right:0;margin-top:3px;background:#fff;border:1px solid #e1e5ea;border-radius:8px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:4px;z-index:5;animation:fade .2s}
+.opt{padding:5px 8px;border-radius:5px;display:flex;align-items:center;gap:6px}
+.opt.hl{background:#EEF6F6}
+.opt.contact b{display:block;font-family:var(--f-body);font-size:10.5px}
+.opt.contact small{color:#00A4A6;font-size:9px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:#f1f3f6;border-radius:8px;padding:3px;gap:3px}
+.tab{text-align:center;padding:4px;border-radius:6px}
+.tab.dis{color:#a7adb8;text-decoration:line-through;text-decoration-color:#d58a5a}
+.tab.act{background:#fff;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tab.shake{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+.tpls{display:grid;gap:5px}
+.srch{border:1px solid #e8ebef;border-radius:7px;padding:3px 8px;color:#a0a7b4}
+.tpl{border:1px solid #e8ebef;border-radius:8px;padding:5px 8px;display:grid;gap:2px}
+.tpl.pick{border-color:#00A4A6;background:#F2FAFA}
+.tpl .tc{display:flex;gap:4px}
+.tpl .tc span{font-size:8px;border-radius:4px;padding:0 5px;font-weight:700}
+.mk{background:#ffe7d4;color:#b4541a}.ap{background:#E1F5F5;color:#00A4A6}.lg{background:#eef1f5;color:#566}
+.tpl .pvw{direction:rtl;text-align:right;font-family:var(--f-body);color:#566;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foot{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:2px}
+.foot span{color:#6b7385}
+.primary{background:#1d2330;color:#fff;border:0;border-radius:8px;padding:6px 14px;font:700 10.5px var(--f-ui)}
+.focus{box-shadow:0 0 0 3px rgba(0,164,166,.35);border-color:#00A4A6 !important}
+.denied{box-shadow:0 0 0 3px rgba(212,110,50,.4)}
+.cursor{position:absolute;top:0;left:0;width:20px;height:20px;z-index:20;transition:transform .7s cubic-bezier(.45,.05,.25,1);pointer-events:none;transform:translate(620px,300px)}
+.cursor svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));transition:transform .15s}
+.cursor.clk svg{transform:scale(.8)}
+.cursor .no{position:absolute;left:12px;top:12px;width:14px;height:14px;border-radius:50%;background:#d46e32;color:#fff;font-size:10px;display:none;place-items:center;font-weight:700}
+.cursor.nope .no{display:grid}
+.ripple{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:2px solid #00A4A6;z-index:19;pointer-events:none;animation:rip .5s ease-out forwards}
+@keyframes rip{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
+.caption{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(19,34,38,.92);color:#fff;border-radius:999px;padding:8px 18px 8px 8px;display:flex;align-items:center;gap:10px;direction:rtl;font-family:var(--f-display);font-size:16px;z-index:25;white-space:nowrap;max-width:94%}
+.caption .n{width:28px;height:28px;border-radius:50%;background:#2FC7C7;color:#0A2526;display:grid;place-items:center;font:700 14px var(--f-ui);flex:none}
+.wm{position:absolute;right:10px;bottom:10px;z-index:24;font-size:9px;color:#8a93a3;font-weight:700;letter-spacing:.04em;display:none}
+@media (prefers-reduced-motion:reduce){.cursor{transition-duration:.01s}.bubble,.overlay,.dd,.ripple,.tab.shake{animation:none}}
+</style>
+
+<div class="wrap" dir="rtl">
+  <header>
+    <div>
+      <h1>إرسال رسالة واتساب إلى العميل عبر منصة Open CX</h1>
+      <p class="sub">يوضّح هذا الدليل خطوات إنشاء جلسة جديدة وإرسال رسالة واتساب إلى العميل باستخدام القوالب المعتمدة. يُعرض الشرح تلقائياً، ويمكن الانتقال إلى أي خطوة بالضغط عليها.</p>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="player">
+      <div class="stage-wrap" id="wrap">
+        <div class="stage" id="stage" dir="ltr">
+          <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="url">platform.open.cx/inbox</div></div>
+          <div class="app">
+            <aside class="rail"><i></i><i></i><i></i><i></i><span class="av">ف</span></aside>
+            <section class="list">
+              <div class="list-h"><b>My Inbox</b><span class="cnt">15</span><button class="plus" id="plusBtn" tabindex="-1">+</button></div>
+              <div class="item new" id="newItem" hidden><div class="id"><span>#670241</span><span>now</span></div><b>Super Admin</b><div class="chips"><span>YOU</span><span class="wa">WhatsApp</span><span>CSMS</span></div><div class="pv">مرحبا 👋 هل يناسبك التواصل مع مدير حسابك؟</div></div>
+              <div class="item"><div class="id"><span>#670162</span><span>2m</span></div><b>Super Admin</b><div class="chips"><span>YOU</span><span>CSMS</span></div><div class="pv">أهلين والله، العرض واضح وما عندي أي سؤال</div></div>
+              <div class="item"><div class="id"><span>#670225</span><span>5m</span></div><b>Super Admin</b><div class="chips"><span>YOU</span><span>CSMS</span></div><div class="pv">كيف أتواصل معك لو احتجت شي؟</div></div>
+              <div class="item"><div class="id"><span>#670116</span><span>7m</span></div><b>mahmoudsayed</b><div class="chips"><span>YOU</span><span>CSMS</span></div><div class="pv">تم استلام الطلب</div></div>
+              <div class="item"><div class="id"><span>#669494</span><span>10m</span></div><b>Super Admin</b><div class="chips"><span>YOU</span><span>CSMS</span></div><div class="pv">تمام شكراً</div></div>
+              <div class="item"><div class="id"><span>#669735</span><span>14m</span></div><b>zulfeqar Ahmed</b><div class="chips"><span>YOU</span><span>CSMS</span></div><div class="pv">متى موعد التجديد؟</div></div>
+            </section>
+            <section class="conv">
+              <div class="conv-h" id="convH">#670225 · Super Admin</div>
+              <div class="conv-body" id="convBody"></div>
+              <div class="composer"><span>message Super Admin...</span><span>Send</span></div>
+            </section>
+          </div>
+
+          <div class="overlay" id="overlay" hidden>
+            <div class="modal" id="modal">
+              <h3>New Session</h3>
+              <p class="p">Choose a contact, channel, and owner. Add a first message when you're ready.</p>
+              <div class="box">
+                <div class="lbl">Session details</div>
+                <div class="row2">
+                  <div class="fld"><label>Channel</label><div class="sel" id="fChannel"><span id="vChannel"></span><span style="margin-left:auto;color:#a0a7b4">⌄</span></div>
+                    <div class="dd" id="ddChannel" hidden><div class="opt">✉ Email</div><div class="opt" id="optWA">● WhatsApp</div><div class="opt">💬 Live chat</div></div></div>
+                  <div class="fld"><label>From</label><div class="sel" id="fFrom"><span id="vFrom"></span><span style="margin-left:auto;color:#a0a7b4">⌄</span></div>
+                    <div class="dd" id="ddFrom" hidden><div class="opt" id="optCSM">Customer Success (+966 800 124 4020)</div><div class="opt">Renewal</div><div class="opt">Support</div></div></div>
+                </div>
+                <div class="fld"><label>Assignee</label><div class="sel" id="fAssignee"><span class="av">ف</span>فداء يوسف (you)<em class="auto">AUTO</em></div></div>
+                <div class="fld"><label>Team</label><div class="sel" id="fTeam"><span id="vTeam"></span><span style="margin-left:auto;color:#a0a7b4">⌄</span></div>
+                  <div class="dd" id="ddTeam" hidden><div class="opt">No Team</div><div class="opt" id="optTeamCSM">CSM</div><div class="opt">Renewal</div></div></div>
+              </div>
+              <div class="lbl">First message</div>
+              <div class="fld"><div class="sel" id="fTo"><span class="k">To</span><span id="vTo"></span></div>
+                <div class="dd" id="ddTo" hidden><div class="opt contact" id="optContact"><span class="av" style="background:#1d2330">S</span><div><b>Super Admin - مؤسسة المثال التجارية</b><small>+966 51 234 5678 · linked in CRM ✓</small></div></div></div>
+              </div>
+              <div class="lbl">Message</div>
+              <div id="preArea" style="display:grid;gap:6px">
+                <div class="tabs"><div class="tab act">Custom Message</div><div class="tab">Template</div></div>
+                <div class="sel" style="height:34px;align-items:flex-start;padding-top:6px;color:#a0a7b4">Write the first message...</div>
+              </div>
+              <div id="msgArea" hidden style="display:grid;gap:6px">
+                <div class="warnbox" id="warn"><b>ⓘ Outside the 24-hour reply window</b>You can only send a pre-approved template message.</div>
+                <div class="tpls" id="tplList">
+                  <div class="srch">⌕ Search templates...</div>
+                  <div class="tpl" id="tpl1"><b>upsell_f_and_b</b><div class="tc"><span class="mk">MARKETING</span><span class="ap">APPROVED</span><span class="lg">EN_US</span></div><div class="pvw">وفّر مع مجموعة إضافات المطاعم والمقاهي واحصل على…</div></div>
+                  <div class="tpl" id="tpl2"><b>csm_activation</b><div class="tc"><span class="mk">MARKETING</span><span class="ap">APPROVED</span><span class="lg">AR</span></div><div class="pvw">مرحبا 👋 …</div></div>
+                  <div class="tpl" id="tpl3"><b>fsa_campaign</b><div class="tc"><span class="mk">MARKETING</span><span class="ap">APPROVED</span><span class="lg">AR</span></div></div>
+                </div>
+                <div id="tplPrev" hidden style="display:grid;gap:5px">
+                  <div style="color:#6b7385">‹ Change template</div>
+                  <b style="font-size:12px">csm_activation</b>
+                  <div class="tc" style="display:flex;gap:4px"><span class="mk" style="font-size:8px;border-radius:4px;padding:0 5px;font-weight:700">MARKETING</span><span class="ap" style="font-size:8px;border-radius:4px;padding:0 5px;font-weight:700">APPROVED</span><span class="lg" style="font-size:8px;border-radius:4px;padding:0 5px;font-weight:700">AR</span></div>
+                  <div class="prevcard" id="prevCard">مرحبا 👋<br>هل يناسبك التواصل مع مدير حسابك الآن؟<div class="pb">↩ نعم</div><div class="pb">↩ كلمني لاحقاً</div></div>
+                </div>
+              </div>
+              <div class="foot"><span>Cancel</span><button class="primary" id="btnCreate" tabindex="-1">Create session</button></div>
+            </div>
+          </div>
+
+          <div class="cursor" id="cursor"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M3 2 L3 16 L7 12.5 L10 18.5 L12.6 17.3 L9.7 11.4 L15 11.4 Z" fill="#111" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg><span class="no">⦸</span></div>
+          <div class="caption" id="caption"><span class="n" id="capN">1</span><span id="capT" style="overflow:hidden;text-overflow:ellipsis"></span></div>
+        </div>
+      </div>
+      <div class="ctrls">
+        <button id="prev" type="button" aria-label="الخطوة السابقة">السابق</button>
+        <button id="play" type="button">إيقاف مؤقت</button>
+        <button id="next" type="button" aria-label="الخطوة التالية">التالي</button>
+        <div class="segs" id="segs"></div>
+      </div>
+    </div>
+
+    <ol class="steps" id="steps"></ol>
+  </div>
+
+  <section class="rules">
+    <h2>ضوابط الإرسال</h2>
+    <ul>
+      <li class="w"><b>Custom Message غير متاح</b>يقتصر الإرسال على القوالب المعتمدة (Approved)، ولا تتيح المنصة كتابة رسالة مخصصة.</li>
+      <li class="w"><b>أرقام CRM فقط</b>لا يمكن الإرسال إلا إلى الأرقام المرتبطة بحساب عميل على نظام CRM، وعدم ظهور الحساب بعد إدخال الرقم يعني أن الرقم غير مرتبط.</li>
+      <li><b>حقلا From و Team حسب القسم</b>يُختار من حقل From رقم رِواء الخاص بالقسم (Customer Success لقسم نجاح العملاء)، ومن حقل Team يُختار CSM.</li>
+      <li><b>التعيين تلقائي</b>يُعبّأ حقل Assignee تلقائياً باسم الموظف الذي أنشأ الجلسة، ولا يتطلب أي تعديل.</li>
+    </ul>
+  </section>
+
+  <footer><span>إعداد: <b>فداء يوسف</b> · QA, Training &amp; Process Automation</span><span>الأسماء والأرقام الواردة في العرض أمثلة توضيحية</span></footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const stage=$('stage'),wrap=$('wrap'),cur=$('cursor');
+let scale=1;
+function fit(){scale=wrap.clientWidth/800;stage.style.transform=`scale(${scale})`;wrap.style.height=(480*scale)+'px';}
+new ResizeObserver(fit).observe(wrap);fit();
+
+const S0=()=>({modal:false,chOpen:false,ch:'Email',frOpen:false,from:'support@rewaa.com',tmOpen:false,team:'No Team',to:'',toOpen:false,contact:false,tpl:null,sent:false});
+const FROM='Customer Success (+966 800 124 4020)';
+let st=S0();
+
+function render(){
+  $('overlay').hidden=!st.modal;
+  $('vChannel').textContent=st.ch==='WhatsApp'?'● WhatsApp':'✉ Email';
+  $('vChannel').style.color=st.ch==='WhatsApp'?'#00A4A6':'';
+  $('ddChannel').hidden=!st.chOpen;
+  $('vFrom').textContent=st.from;
+  $('vFrom').style.color=st.from==='Select inbox'?'#a0a7b4':'';
+  $('ddFrom').hidden=!st.frOpen;
+  const vTo=$('vTo');
+  if(st.contact){vTo.className='';vTo.innerHTML='<span class="cchip"><span class="av" style="background:#1d2330">S</span><span>Super Admin - مؤسسة المثال التجارية</span></span>';}
+  else if(st.to){vTo.className='typed';vTo.textContent=st.to+'|';}
+  else{vTo.className='ph';vTo.textContent='Search contacts...';}
+  $('ddTo').hidden=!st.toOpen;
+  $('vTeam').textContent=st.team;
+  $('ddTeam').hidden=!st.tmOpen;
+  $('preArea').hidden=st.contact;
+  $('msgArea').hidden=!st.contact;
+  $('tplList').hidden=!!st.tpl;
+  $('tplPrev').hidden=!st.tpl;
+  if(!st.modal)$('modal').scrollTop=0;
+  $('newItem').hidden=!st.sent;
+  $('convH').innerHTML=st.sent?'#670241 · Super Admin <span class="chips"><span class="wa">WhatsApp</span><span>فداء يوسف</span></span>':'#670225 · Super Admin';
+  $('convBody').innerHTML=st.sent
+    ?'<div class="bubble"><div class="h">▤ WhatsApp template · csm_activation</div>مرحبا 👋<br>هل يناسبك التواصل مع مدير حسابك الآن؟<div class="btn">↩ نعم</div><div class="btn">↩ كلمني لاحقاً</div><div class="t">now ✓✓ · فداء يوسف</div></div>'
+    :'<div class="ghost l"></div><div class="ghost r"></div><div class="ghost l"></div><div class="ghost r" style="width:40%"></div>';
+}
+
+let gen=0,paused=false,idx=0;
+async function sleep(ms){const g=gen;let t=0;while(t<ms){await new Promise(r=>setTimeout(r,50));if(g!==gen)throw 0;if(!paused)t+=50;}}
+let focused=null;
+function setFocus(el,cls='focus'){if(focused)focused.classList.remove('focus','denied');focused=el;if(el)el.classList.add(cls);}
+async function move(id,cls){const el=$(id);
+  const m=$('modal');
+  if(m.contains(el)){const er=el.getBoundingClientRect(),mr=m.getBoundingClientRect();
+    const top=(er.top-mr.top)/scale,bot=(er.bottom-mr.top)/scale,vis=m.clientHeight-44;
+    let d=0;if(top<8)d=top-8;else if(bot>vis)d=bot-vis+6;
+    if(d){m.scrollBy({top:d,behavior:'smooth'});await sleep(420);}}
+  const r=el.getBoundingClientRect(),s=stage.getBoundingClientRect();
+  const x=(r.left-s.left+r.width*.5)/scale,y=(r.top-s.top+r.height*.55)/scale;
+  cur.style.transform=`translate(${x}px,${y}px)`;cur.dataset.x=x;cur.dataset.y=y;await sleep(800);setFocus(el,cls);}
+async function click(){cur.classList.add('clk');const rp=document.createElement('div');rp.className='ripple';rp.style.left=cur.dataset.x+'px';rp.style.top=cur.dataset.y+'px';stage.appendChild(rp);setTimeout(()=>rp.remove(),600);await sleep(220);cur.classList.remove('clk');await sleep(200);}
+
+const steps=[
+ {t:'الضغط على زر (+) أعلى صندوق الوارد',d:'يؤدي الضغط على زر (+) بجوار عدد المحادثات في صفحة My Inbox إلى فتح نافذة New Session.',
+  f:s=>{s.modal=true},a:async()=>{await move('plusBtn');await click();st.modal=true;render();await sleep(500);}},
+ {t:'اختيار قناة WhatsApp',d:'تُفتح قائمة حقل Channel، ويُختار WhatsApp بدلاً من Email.',
+  f:s=>{s.ch='WhatsApp';s.from='Select inbox';s.chOpen=false},a:async()=>{await move('fChannel');await click();st.chOpen=true;render();await sleep(500);await move('optWA');await click();st.ch='WhatsApp';st.from='Select inbox';st.chOpen=false;render();}},
+ {t:'اختيار رقم القسم من حقل From',d:'يظهر رقم رِواء الخاص بقسم الموظف، وهو لقسم نجاح العملاء: Customer Success (+966 800 124 4020).',tag:'رقم رِواء حسب القسم',
+  f:s=>{s.from=FROM;s.frOpen=false},a:async()=>{await move('fFrom');await click();st.frOpen=true;render();await sleep(500);await move('optCSM');await click();st.from=FROM;st.frOpen=false;render();}},
+ {t:'التعيين التلقائي باسم الموظف',d:'يظهر اسم الموظف في حقل Assignee تلقائياً، دون الحاجة إلى أي تعديل.',tag:'تلقائي',
+  f:s=>{},a:async()=>{await move('fAssignee');await sleep(1600);}},
+ {t:'اختيار فريق CSM من حقل Team',d:'يُختار CSM من القائمة المنسدلة في حقل Team بدلاً من No Team.',
+  f:s=>{s.team='CSM';s.tmOpen=false},a:async()=>{await move('fTeam');await click();st.tmOpen=true;render();await sleep(500);await move('optTeamCSM');await click();st.team='CSM';st.tmOpen=false;render();}},
+ {t:'إدخال رقم العميل واختيار حسابه',d:'يُدخَل رقم العميل في حقل To، ثم يُختار حسابه فور ظهوره.',tag:'الأرقام المرتبطة بحساب على CRM فقط',w:1,
+  f:s=>{s.contact=true;s.toOpen=false},a:async()=>{await move('fTo');await click();for(const c of '966512345678'){st.to+=c;render();await sleep(80);}await sleep(350);st.toOpen=true;render();await sleep(600);await move('optContact');await click();st.contact=true;st.toOpen=false;render();await sleep(400);}},
+ {t:'الإرسال عبر القوالب المعتمدة فقط',d:'يظهر بعد اختيار العميل تنبيه Outside the 24-hour reply window، ولا تتوفر إمكانية الرسالة المخصصة.',tag:'Custom Message غير متاح',w:1,
+  f:s=>{},a:async()=>{await move('warn','denied');cur.classList.add('nope');await sleep(1800);cur.classList.remove('nope');}},
+ {t:'اختيار القالب المناسب',d:'يُختار القالب المطلوب من قائمة القوالب المعتمدة (Approved)، وتظهر معاينته قبل الإرسال.',
+  f:s=>{s.tpl='csm_activation'},a:async()=>{await move('tpl2');await click();st.tpl='csm_activation';render();await sleep(300);await move('prevCard');await sleep(900);}},
+ {t:'الضغط على Create session لإتمام الإرسال',d:'يُرسَل القالب إلى العميل، وتُفتح المحادثة مُسندةً إلى الموظف.',
+  f:s=>{s.modal=false;s.sent=true},a:async()=>{await move('btnCreate');await click();setFocus(null);st.modal=false;st.sent=true;render();cur.style.transform='translate(650px,300px)';await sleep(400);}}
+];
+
+const ol=$('steps'),segs=$('segs');
+steps.forEach((s,i)=>{const li=document.createElement('li');li.tabIndex=0;
+  li.innerHTML=`<div><b>${s.t}</b><p>${s.d}</p>${s.tag?`<span class="tag${s.w?' w':''}">${s.tag}</span>`:''}</div>`;
+  li.onclick=()=>run(i);li.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();run(i)}};ol.appendChild(li);
+  segs.appendChild(document.createElement('i'));});
+
+function ui(){[...ol.children].forEach((li,i)=>li.classList.toggle('on',i===idx));
+  [...segs.children].forEach((g,i)=>{g.className=i<idx?'done':i===idx?'on':''});
+  $('capN').textContent=idx+1;$('capT').textContent=steps[idx].t;}
+
+async function run(n){
+  gen++;idx=n;st=S0();for(let i=0;i<n;i++)steps[i].f(st);setFocus(null);cur.classList.remove('nope');
+  document.querySelectorAll('.shake').forEach(e=>e.classList.remove('shake'));render();ui();
+  try{await sleep(350);await steps[n].a();steps[n].f(st);render();await sleep(n===steps.length-1?3200:1500);run((n+1)%steps.length);}catch(e){}
+}
+$('play').onclick=()=>{paused=!paused;$('play').textContent=paused?'تشغيل':'إيقاف مؤقت';};
+$('next').onclick=()=>run((idx+1)%steps.length);
+$('prev').onclick=()=>run((idx-1+steps.length)%steps.length);
+run(0);
+</script>
