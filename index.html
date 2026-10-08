@@ -206,12 +206,9 @@ footer b{color:var(--ink);font-family:var(--f-ui)}
                 <div class="dd" id="ddTo" hidden><div class="opt contact" id="optContact"><span class="av" style="background:#1d2330">S</span><div><b>Super Admin - مؤسسة المثال التجارية</b><small>+966 51 234 5678 · linked in CRM ✓</small></div></div></div>
               </div>
               <div class="lbl">Message</div>
-              <div id="preArea" style="display:grid;gap:6px">
-                <div class="tabs"><div class="tab act">Custom Message</div><div class="tab">Template</div></div>
-                <div class="sel" style="height:34px;align-items:flex-start;padding-top:6px;color:#a0a7b4">Write the first message...</div>
-              </div>
-              <div id="msgArea" hidden style="display:grid;gap:6px">
-                <div class="warnbox" id="warn"><b>ⓘ Outside the 24-hour reply window</b>You can only send a pre-approved template message.</div>
+              <div id="msgArea" style="display:grid;gap:6px">
+                <div class="tabs"><div class="tab" id="tabCustom">Custom Message</div><div class="tab" id="tabTpl">Template</div></div>
+                <div class="sel" id="customBox" style="height:34px;align-items:flex-start;padding-top:6px;color:#a0a7b4">Write the first message...</div>
                 <div class="tpls" id="tplList">
                   <div class="srch">⌕ Search templates...</div>
                   <div class="tpl" id="tpl1"><b>upsell_f_and_b</b><div class="tc"><span class="mk">MARKETING</span><span class="ap">APPROVED</span><span class="lg">EN_US</span></div><div class="pvw">وفّر مع مجموعة إضافات المطاعم والمقاهي واحصل على…</div></div>
@@ -247,8 +244,8 @@ footer b{color:var(--ink);font-family:var(--f-ui)}
   <section class="rules">
     <h2>ضوابط الإرسال</h2>
     <ul>
-      <li class="w"><b>Custom Message غير متاح</b>يقتصر الإرسال على القوالب المعتمدة (Approved)، ولا تتيح المنصة كتابة رسالة مخصصة.</li>
-      <li class="w"><b>أرقام CRM فقط</b>لا يمكن الإرسال إلا إلى الأرقام المرتبطة بحساب عميل على نظام CRM، وعدم ظهور الحساب بعد إدخال الرقم يعني أن الرقم غير مرتبط.</li>
+      <li class="w"><b>Custom Message غير متاح</b>يقتصر الإرسال على القوالب المعتمدة (Approved) من تبويب Template، ولا تتيح المنصة كتابة رسالة مخصصة.</li>
+      <li class="w"><b>أرقام CRM فقط</b>لا يمكن الإرسال إلا إلى الأرقام المرتبطة بحساب عميل على نظام CRM، وعدم ظهور الحساب بعد إدخال الرقم يعني أن الرقم غير مرتبط؛ وفي هذه الحالة يُتواصل مع قائد الفريق (Team Lead) ليتم إضافة الرقم وربطه بحساب العميل.</li>
       <li><b>حقلا From و Team حسب القسم</b>يُختار من حقل From رقم رِواء الخاص بالقسم (Customer Success لقسم نجاح العملاء)، ومن حقل Team يُختار CSM.</li>
       <li><b>التعيين تلقائي</b>يُعبّأ حقل Assignee تلقائياً باسم الموظف الذي أنشأ الجلسة، ولا يتطلب أي تعديل.</li>
     </ul>
@@ -264,7 +261,7 @@ let scale=1;
 function fit(){scale=wrap.clientWidth/800;stage.style.transform=`scale(${scale})`;wrap.style.height=(480*scale)+'px';}
 new ResizeObserver(fit).observe(wrap);fit();
 
-const S0=()=>({modal:false,chOpen:false,ch:'Email',frOpen:false,from:'support@rewaa.com',tmOpen:false,team:'No Team',to:'',toOpen:false,contact:false,tpl:null,sent:false});
+const S0=()=>({modal:false,chOpen:false,ch:'Email',frOpen:false,from:'support@rewaa.com',tmOpen:false,team:'No Team',to:'',toOpen:false,contact:false,tab:null,tpl:null,sent:false});
 const FROM='Customer Success (+966 800 124 4020)';
 let st=S0();
 
@@ -283,9 +280,10 @@ function render(){
   $('ddTo').hidden=!st.toOpen;
   $('vTeam').textContent=st.team;
   $('ddTeam').hidden=!st.tmOpen;
-  $('preArea').hidden=st.contact;
-  $('msgArea').hidden=!st.contact;
-  $('tplList').hidden=!!st.tpl;
+  $('tabCustom').classList.toggle('act',st.tab!=='tpl');
+  $('tabTpl').classList.toggle('act',st.tab==='tpl');
+  $('customBox').hidden=st.tab==='tpl';
+  $('tplList').hidden=st.tab!=='tpl'||!!st.tpl;
   $('tplPrev').hidden=!st.tpl;
   if(!st.modal)$('modal').scrollTop=0;
   $('newItem').hidden=!st.sent;
@@ -321,10 +319,10 @@ const steps=[
   f:s=>{},a:async()=>{await move('fAssignee');await sleep(1600);}},
  {t:'اختيار فريق CSM من حقل Team',d:'يُختار CSM من القائمة المنسدلة في حقل Team بدلاً من No Team.',
   f:s=>{s.team='CSM';s.tmOpen=false},a:async()=>{await move('fTeam');await click();st.tmOpen=true;render();await sleep(500);await move('optTeamCSM');await click();st.team='CSM';st.tmOpen=false;render();}},
- {t:'إدخال رقم العميل واختيار حسابه',d:'يُدخَل رقم العميل في حقل To، ثم يُختار حسابه فور ظهوره.',tag:'الأرقام المرتبطة بحساب على CRM فقط',w:1,
+ {t:'إدخال رقم العميل واختيار حسابه',d:'يُدخَل رقم العميل في حقل To، ثم يُختار حسابه فور ظهوره.',tag:'الرقم غير المرتبط بحساب CRM: التواصل مع قائد الفريق (Team Lead) لإضافته وربطه',w:1,
   f:s=>{s.contact=true;s.toOpen=false},a:async()=>{await move('fTo');await click();for(const c of '966512345678'){st.to+=c;render();await sleep(80);}await sleep(350);st.toOpen=true;render();await sleep(600);await move('optContact');await click();st.contact=true;st.toOpen=false;render();await sleep(400);}},
- {t:'الإرسال عبر القوالب المعتمدة فقط',d:'يظهر بعد اختيار العميل تنبيه Outside the 24-hour reply window، ولا تتوفر إمكانية الرسالة المخصصة.',tag:'Custom Message غير متاح',w:1,
-  f:s=>{},a:async()=>{await move('warn','denied');cur.classList.add('nope');await sleep(1800);cur.classList.remove('nope');}},
+ {t:'الضغط على تبويب Template',d:'يُضغط على تبويب Template في حقل Message لعرض القوالب المتاحة، إذ إن الرسالة المخصصة غير متاحة.',tag:'Custom Message غير متاح',w:1,
+  f:s=>{s.tab='tpl'},a:async()=>{await move('tabTpl');await click();st.tab='tpl';render();await sleep(500);}},
  {t:'اختيار القالب المناسب',d:'يُختار القالب المطلوب من قائمة القوالب المعتمدة (Approved)، وتظهر معاينته قبل الإرسال.',
   f:s=>{s.tpl='csm_activation'},a:async()=>{await move('tpl2');await click();st.tpl='csm_activation';render();await sleep(300);await move('prevCard');await sleep(900);}},
  {t:'الضغط على Create session لإتمام الإرسال',d:'يُرسَل القالب إلى العميل، وتُفتح المحادثة مُسندةً إلى الموظف.',
